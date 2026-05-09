@@ -13,14 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-
         if (!Schema::hasTable('cache_looks')) {
-            if (!Schema::hasTable('cache_looks')) {
-        Schema::create('cache_looks', function (Blueprint $table) {
+            Schema::create('cache_looks', function (Blueprint $table) {
                 $table->string('key');
                 $table->string('owner');
                 $table->integer('expiration');
-    });
+            });
         }
     }
 
