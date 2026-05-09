@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('model_type');
             $table->unsignedBigInteger('model_id');
 
-            $table->primary(['role_id', 'model_id']);
-            $table->foreign(['role_id'], 'model_has_roles_ibfk_1')->references(['id'])->on('roles')->onUpdate('cascade')->onDelete('cascade');
+            $table->primary(['role_id', 'model_id', 'model_type']);
+            $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

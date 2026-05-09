@@ -14,9 +14,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('permissions', function (Blueprint $table) {
-            $table->unsignedBigInteger('id')->nullable();
-            $table->string('name')->nullable();
-            $table->string('guard_name')->nullable();
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->string('guard_name');
             $table->timestamps();
         });
     }
