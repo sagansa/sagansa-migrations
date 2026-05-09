@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    protected $connection = 'mysql';
+
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        if (!Schema::hasTable('utility_providers')) {
+            Schema::create('utility_providers', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name', 20);
+            $table->tinyInteger('category');
+            $table->timestamps();
+    });
+        }
+    }/**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('utility_providers');
+    }
+};
