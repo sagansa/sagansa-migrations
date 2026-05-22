@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 return new class extends Migration
 {
@@ -61,13 +63,37 @@ return new class extends Migration
 
     private function addForeign(string $table, string $column, string $constraint, string $referencedDatabase): void
     {
-        DB::connection('mysql')->statement(sprintf(
-            'ALTER TABLE `%s` ADD CONSTRAINT `%s` FOREIGN KEY (`%s`) REFERENCES `%s`.`users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE',
-            $table,
-            $constraint,
-            $column,
-            str_replace('`', '``', $referencedDatabase),
-        ));
+        try {
+            DB::connection('mysql')->statement(sprintf(
+                'ALTER TABLE `%s` ADD CONSTRAINT `%s` FOREIGN KEY (`%s`) REFERENCES `%s`.`users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE',
+                $table,
+                $constraint,
+                $column,
+                str_replace('`', '``', $referencedDatabase),
+            ));
+        } catch (QueryException $exception) {
+            if ($this->isReferencesPrivilegeDenied($exception)) {
+                Log::warning('Skipping cross-database user foreign key because MySQL user lacks REFERENCES privilege.', [
+                    'table' => $table,
+                    'column' => $column,
+                    'constraint' => $constraint,
+                    'referenced_database' => $referencedDatabase,
+                    'message' => $exception->getMessage(),
+                ]);
+
+                return;
+            }
+
+            throw $exception;
+        }
+    }
+
+    private function isReferencesPrivilegeDenied(QueryException $exception): bool
+    {
+        $errorInfo = $exception->errorInfo;
+
+        return ($errorInfo[1] ?? null) === 1142
+            || str_contains($exception->getMessage(), 'REFERENCES command denied');
     }
 
     private function normalizeZeroDateTimes(string $table): void
