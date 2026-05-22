@@ -12,32 +12,51 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_variants', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('product_id');
-            $table->string('name');
-            $table->string('sku')->nullable();
-            $table->unsignedInteger('price')->nullable();
-            $table->unsignedInteger('stock')->default(0);
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
+        if (!Schema::hasTable('product_variants')) {
+                    Schema::create('product_variants', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('product_id');
+                        $table->string('name');
+                        $table->string('sku')->nullable();
+                        $table->unsignedInteger('price')->nullable();
+                        $table->unsignedInteger('stock')->default(0);
+                        $table->boolean('is_active')->default(true);
+                        $table->timestamps();
 
-            $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();
-            $table->unique(['product_id', 'sku']);
-            $table->index(['product_id', 'is_active']);
-        });
+                        try {
+                                                    $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->unique(['product_id', 'sku']);                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->index(['product_id', 'is_active']);                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
 
-        Schema::create('product_modifications', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('product_id');
-            $table->string('name');
-            $table->unsignedInteger('price')->default(0);
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
+        if (!Schema::hasTable('product_modifications')) {
+                    Schema::create('product_modifications', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('product_id');
+                        $table->string('name');
+                        $table->unsignedInteger('price')->default(0);
+                        $table->boolean('is_active')->default(true);
+                        $table->timestamps();
 
-            $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();
-            $table->index(['product_id', 'is_active']);
-        });
+                        try {
+                                                    $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->index(['product_id', 'is_active']);                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

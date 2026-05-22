@@ -13,13 +13,15 @@ return new class extends Migration
     public function up(): void
     {
 
-        Schema::create('categories', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('name')->unique();
-            $table->uuid('tenant_id')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('categories')) {
+                    Schema::create('categories', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->string('name')->unique();
+                        $table->uuid('tenant_id')->nullable();
+                        $table->boolean('is_active')->default(true);
+                        $table->timestamps();
+                    });
+        }
     }
 
     /**

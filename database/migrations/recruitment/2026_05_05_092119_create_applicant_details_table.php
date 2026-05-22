@@ -13,17 +13,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('applicant_details', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->string('nickname')->nullable();
-            $table->string('phone')->nullable();
-            $table->text('address')->nullable();
-            $table->string('birth_place')->nullable();
-            $table->date('birth_date')->nullable();
-            $table->string('gender')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('applicant_details')) {
+            Schema::create('applicant_details', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('user_id');
+                $table->string('nickname')->nullable();
+                $table->string('phone')->nullable();
+                $table->text('address')->nullable();
+                $table->string('birth_place')->nullable();
+                $table->date('birth_date')->nullable();
+                $table->string('gender')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

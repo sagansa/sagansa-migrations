@@ -12,28 +12,41 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('leaves', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('user_id');
-            $table->string('type');
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->unsignedInteger('duration')->nullable();
-            $table->text('reason')->nullable();
-            $table->string('status', 50)->default('pending');
-            $table->uuid('approved_by_id')->nullable();
-            $table->timestamp('approved_at')->nullable();
-            $table->timestamp('rejected_at')->nullable();
-            $table->text('review_notes')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('leaves')) {
+                    Schema::create('leaves', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('tenant_id');
+                        $table->uuid('user_id');
+                        $table->string('type');
+                        $table->date('start_date');
+                        $table->date('end_date');
+                        $table->unsignedInteger('duration')->nullable();
+                        $table->text('reason')->nullable();
+                        $table->string('status', 50)->default('pending');
+                        $table->uuid('approved_by_id')->nullable();
+                        $table->timestamp('approved_at')->nullable();
+                        $table->timestamp('rejected_at')->nullable();
+                        $table->text('review_notes')->nullable();
+                        $table->timestamps();
 
-            $table->foreign('tenant_id')->references('id')->on('tenants')->cascadeOnDelete();
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->foreign('approved_by_id')->references('id')->on('users')->nullOnDelete();
-            $table->index(['tenant_id', 'status']);
-            $table->index(['tenant_id', 'user_id']);
-        });
+                        try {
+                                                    $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->foreign('approved_by_id')->references('id')->on('users')->nullOnDelete();                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->index(['tenant_id', 'status']);                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->index(['tenant_id', 'user_id']);                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

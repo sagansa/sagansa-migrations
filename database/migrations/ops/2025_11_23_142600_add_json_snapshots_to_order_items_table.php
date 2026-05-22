@@ -14,12 +14,16 @@ return new class extends Migration
     {
         Schema::table('order_items', function (Blueprint $table) {
             // Add JSON snapshot columns
-            $table->json('product_snapshot')->nullable();
-            $table->json('variant_snapshot')->nullable();
-            $table->json('modifications_snapshot')->nullable();
+            if (!Schema::hasColumn('order_items', 'product_snapshot')) {
+                            $table->json('product_snapshot')->nullable();            }
+            if (!Schema::hasColumn('order_items', 'variant_snapshot')) {
+                            $table->json('variant_snapshot')->nullable();            }
+            if (!Schema::hasColumn('order_items', 'modifications_snapshot')) {
+                            $table->json('modifications_snapshot')->nullable();            }
             
             // Make product_id nullable for new orders that only use snapshots
-            $table->uuid('product_id')->nullable()->change();
+            if (Schema::hasColumn('order_items', 'product_id')) {
+                            $table->uuid('product_id')->nullable()->change();            }
         });
     }
 
@@ -29,7 +33,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('order_items', function (Blueprint $table) {
-            $table->dropColumn(['product_snapshot', 'variant_snapshot', 'modifications_snapshot']);
+            foreach (['product_snapshot', 'variant_snapshot', 'modifications_snapshot'] as $column) {
+                if (Schema::hasColumn('order_items', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
             // Note: We don't revert product_id back to non-nullable to avoid breaking existing data
         });
     }

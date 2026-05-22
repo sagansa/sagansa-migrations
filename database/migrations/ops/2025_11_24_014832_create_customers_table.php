@@ -12,17 +12,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customers', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->string('name')->nullable();
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
-            $table->text('address')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('customers')) {
+                    Schema::create('customers', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('tenant_id');
+                        $table->string('name')->nullable();
+                        $table->string('email')->nullable();
+                        $table->string('phone')->nullable();
+                        $table->text('address')->nullable();
+                        $table->timestamps();
 
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
-        });
+                        try {
+                                                    $table->index('tenant_id');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

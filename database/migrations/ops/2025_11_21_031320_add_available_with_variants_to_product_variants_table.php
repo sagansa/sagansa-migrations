@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('product_variants', function (Blueprint $table) {
-            $table->json('available_with_variants')->nullable();
+            if (!Schema::hasColumn('product_variants', 'available_with_variants')) {
+                            $table->json('available_with_variants')->nullable();            }
         });
     }
 
@@ -23,7 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('product_variants', function (Blueprint $table) {
-            $table->dropColumn('available_with_variants');
+            if (Schema::hasColumn('product_variants', 'available_with_variants')) {
+                            $table->dropColumn('available_with_variants');            }
         });
     }
 };

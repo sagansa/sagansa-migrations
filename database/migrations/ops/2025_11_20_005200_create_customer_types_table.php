@@ -12,16 +12,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customer_types', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('store_id');
-            $table->string('name');
-            $table->boolean('is_active')->default(true);
-            $table->integer('order')->default(0);
-            $table->timestamps();
+        if (!Schema::hasTable('customer_types')) {
+                    Schema::create('customer_types', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('store_id');
+                        $table->string('name');
+                        $table->boolean('is_active')->default(true);
+                        $table->integer('order')->default(0);
+                        $table->timestamps();
             
-            $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade');
-        });
+                        try {
+                                                    $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

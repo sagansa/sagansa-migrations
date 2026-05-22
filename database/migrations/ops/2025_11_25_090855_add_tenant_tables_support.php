@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -14,47 +15,77 @@ return new class extends Migration
     {
         Schema::table('tables', function (Blueprint $table) {
             // Add tenant_id for food court mode
-            $table->foreignUuid('tenant_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+            if (!Schema::hasColumn('tables', 'tenant_id')) {
+                            $table->foreignUuid('tenant_id')->nullable()->after('id')->constrained()->cascadeOnDelete();            }
             
             // Add zone support
-            $table->foreignUuid('zone_id')->nullable()->after('tenant_id')->constrained('table_zones')->nullOnDelete();
+            if (!Schema::hasColumn('tables', 'zone_id')) {
+                            $table->foreignUuid('zone_id')->nullable()->after('tenant_id')->constrained('table_zones')->nullOnDelete();            }
             
             // Add QR code
-            $table->string('qr_code', 255)->nullable()->unique()->after('table_number');
+            if (!Schema::hasColumn('tables', 'qr_code')) {
+                            $table->string('qr_code', 255)->nullable()->unique()->after('table_number');            }
             
             // Make store_id nullable (for tenant-owned tables)  
-            $table->uuid('store_id')->nullable()->change();
+            if (Schema::hasColumn('tables', 'store_id')) {
+                            $table->uuid('store_id')->nullable()->change();            }
         });
 
 
-        // Generate QR codes for existing tables
-        DB::statement("
-            UPDATE tables 
-            SET qr_code = CONCAT('TBL-', UPPER(SUBSTRING(id, 1, 8)))
-            WHERE qr_code IS NULL
-        ");
+        if (DB::connection($this->connection)->getDriverName() !== 'sqlite') {
+            // Generate QR codes for existing tables
+            DB::statement("
+                UPDATE tables 
+                SET qr_code = CONCAT('TBL-', UPPER(REPLACE(id, '-', '')))
+                WHERE qr_code IS NULL
+            ");
 
-        // Add constraint: must have either store_id OR tenant_id (not both, not neither)
-        DB::statement('
-            ALTER TABLE tables ADD CONSTRAINT chk_table_owner CHECK (
-                (store_id IS NOT NULL AND tenant_id IS NULL) OR
-                (store_id IS NULL AND tenant_id IS NOT NULL)
-            )
-        ');
+            // Add constraint: must have either store_id OR tenant_id (not both, not neither)
+            if (!$this->constraintExists('tables', 'chk_table_owner')) {
+                DB::statement('
+                    ALTER TABLE tables ADD CONSTRAINT chk_table_owner CHECK (
+                        (store_id IS NOT NULL AND tenant_id IS NULL) OR
+                        (store_id IS NULL AND tenant_id IS NOT NULL)
+                    )
+                ');
+            }
+        }
     }
 
     public function down(): void
     {
         // Drop constraint first
-        DB::statement('ALTER TABLE tables DROP CONSTRAINT IF EXISTS chk_table_owner');
+        if ($this->constraintExists('tables', 'chk_table_owner')) {
+            DB::statement('ALTER TABLE tables DROP CONSTRAINT chk_table_owner');
+        }
         
         Schema::table('tables', function (Blueprint $table) {
             $table->dropConstrainedForeignId('tenant_id');
             $table->dropConstrainedForeignId('zone_id');
-            $table->dropColumn('qr_code');
+            if (Schema::hasColumn('tables', 'qr_code')) {
+                            $table->dropColumn('qr_code');            }
             
             // Restore store_id as NOT NULL
-            $table->uuid('store_id')->nullable(false)->change();
+            if (Schema::hasColumn('tables', 'store_id')) {
+                            $table->uuid('store_id')->nullable(false)->change();            }
         });
+    }
+
+    private function constraintExists(string $table, string $constraint): bool
+    {
+        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
+            return false;
+        }
+        return (bool) DB::connection($this->connection)->selectOne(
+            <<<'SQL'
+            SELECT 1
+            FROM information_schema.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_SCHEMA = DATABASE()
+              AND TABLE_NAME = ?
+              AND CONSTRAINT_NAME = ?
+            LIMIT 1
+            SQL,
+            [$table, $constraint]
+        );
     }
 };

@@ -12,20 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('printer_jobs', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('printer_id');
-            $table->uuid('order_id')->nullable(); // nullable for test prints
-            $table->json('payload'); // JSON payload for print job
-            $table->enum('status', ['pending', 'printing', 'printed', 'failed'])->default('pending');
-            $table->text('error_message')->nullable();
-            $table->timestamp('attempted_at')->nullable();
-            $table->timestamp('printed_at')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('printer_jobs')) {
+                    Schema::create('printer_jobs', function (Blueprint $table) {
+                        $table->id();
+                        $table->uuid('printer_id');
+                        $table->uuid('order_id')->nullable(); // nullable for test prints
+                        $table->json('payload'); // JSON payload for print job
+                        $table->enum('status', ['pending', 'printing', 'printed', 'failed'])->default('pending');
+                        $table->text('error_message')->nullable();
+                        $table->timestamp('attempted_at')->nullable();
+                        $table->timestamp('printed_at')->nullable();
+                        $table->timestamps();
             
-            $table->foreign('printer_id')->references('id')->on('printers')->onDelete('cascade');
-            // Foreign key to orders table will be added after the orders table is created
-        });
+                        try {
+                                                    $table->foreign('printer_id')->references('id')->on('printers')->onDelete('cascade');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        // Foreign key to orders table will be added after the orders table is created
+                    });
+        }
     }
 
     /**

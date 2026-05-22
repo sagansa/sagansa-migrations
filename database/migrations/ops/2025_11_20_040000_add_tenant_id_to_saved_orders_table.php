@@ -13,8 +13,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('saved_orders', function (Blueprint $table) {
-            $table->uuid('tenant_id')->after('id')->nullable();
-            $table->index('tenant_id');
+            if (!Schema::hasColumn('saved_orders', 'tenant_id')) {
+                            $table->uuid('tenant_id')->after('id')->nullable();            }
+            try {
+                            $table->index('tenant_id');            } catch (\Throwable $e) {
+                // Constraint/index may already exist or may already be absent on partial migrations.
+            }
         });
     }
 
@@ -24,7 +28,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('saved_orders', function (Blueprint $table) {
-            $table->dropColumn('tenant_id');
+            if (Schema::hasColumn('saved_orders', 'tenant_id')) {
+                            $table->dropColumn('tenant_id');            }
         });
     }
 };

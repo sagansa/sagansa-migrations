@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('proof_of_payment')->nullable();
+            if (!Schema::hasColumn('orders', 'proof_of_payment')) {
+                            $table->string('proof_of_payment')->nullable();            }
         });
     }
 
@@ -23,7 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('proof_of_payment');
+            if (Schema::hasColumn('orders', 'proof_of_payment')) {
+                            $table->dropColumn('proof_of_payment');            }
         });
     }
 };

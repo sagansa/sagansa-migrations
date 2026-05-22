@@ -13,16 +13,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('work_experiences', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->string('company_name');
-            $table->string('position');
-            $table->date('start_date');
-            $table->date('end_date')->nullable();
-            $table->text('description')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('work_experiences')) {
+            Schema::create('work_experiences', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('user_id');
+                $table->string('company_name');
+                $table->string('position');
+                $table->date('start_date');
+                $table->date('end_date')->nullable();
+                $table->text('description')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -12,12 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payment_type', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('name')->unique();
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('payment_type')) {
+                    Schema::create('payment_type', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->string('name')->unique();
+                        $table->boolean('is_active')->default(true);
+                        $table->timestamps();
+                    });
+        }
     }
 
     /**

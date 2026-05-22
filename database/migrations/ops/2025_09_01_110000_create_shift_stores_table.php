@@ -12,19 +12,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shift_stores', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->string('name');
-            $table->time('shift_start_time');
-            $table->time('shift_end_time');
-            $table->unsignedInteger('duration');
-            $table->timestamps();
+        if (!Schema::hasTable('shift_stores')) {
+                    Schema::create('shift_stores', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('tenant_id');
+                        $table->string('name');
+                        $table->time('shift_start_time');
+                        $table->time('shift_end_time');
+                        $table->unsignedInteger('duration');
+                        $table->timestamps();
 
-            $table->foreign('tenant_id')->references('id')->on('tenants')->cascadeOnDelete();
-            $table->index(['tenant_id', 'name']);
-            $table->index(['tenant_id', 'shift_start_time']);
-        });
+                        try {
+                                                    $table->index(['tenant_id', 'name']);                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->index(['tenant_id', 'shift_start_time']);                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

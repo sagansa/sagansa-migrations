@@ -13,12 +13,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stores', function (Blueprint $table) {
-            $table->text('receipt_header')->nullable();
-            $table->text('receipt_footer')->nullable();
-            $table->string('email_receipt_logo')->nullable();
-            $table->string('print_receipt_logo')->nullable();
-            $table->text('address')->nullable();
-            $table->string('phone')->nullable();
+            if (!Schema::hasColumn('stores', 'receipt_header')) {
+                            $table->text('receipt_header')->nullable();            }
+            if (!Schema::hasColumn('stores', 'receipt_footer')) {
+                            $table->text('receipt_footer')->nullable();            }
+            if (!Schema::hasColumn('stores', 'email_receipt_logo')) {
+                            $table->string('email_receipt_logo')->nullable();            }
+            if (!Schema::hasColumn('stores', 'print_receipt_logo')) {
+                            $table->string('print_receipt_logo')->nullable();            }
+            if (!Schema::hasColumn('stores', 'address')) {
+                            $table->text('address')->nullable();            }
+            if (!Schema::hasColumn('stores', 'phone')) {
+                            $table->string('phone')->nullable();            }
         });
     }
 

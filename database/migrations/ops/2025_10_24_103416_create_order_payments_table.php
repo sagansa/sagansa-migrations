@@ -12,21 +12,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_payments', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('order_id');
-            $table->decimal('amount', 10, 2);
-            $table->uuid('payment_type_id');
-            $table->string('reference')->nullable();
-            $table->timestamp('captured_at')->nullable();
-            $table->boolean('is_offline')->default(false);
-            $table->timestamp('synced_at')->nullable();
-            $table->softDeletes();
-            $table->timestamps();
+        if (!Schema::hasTable('order_payments')) {
+                    Schema::create('order_payments', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('order_id');
+                        $table->decimal('amount', 10, 2);
+                        $table->uuid('payment_type_id');
+                        $table->string('reference')->nullable();
+                        $table->timestamp('captured_at')->nullable();
+                        $table->boolean('is_offline')->default(false);
+                        $table->timestamp('synced_at')->nullable();
+                        $table->softDeletes();
+                        $table->timestamps();
             
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->foreign('payment_type_id')->references('id')->on('payment_type')->onDelete('cascade');
-        });
+                        try {
+                                                    $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->foreign('payment_type_id')->references('id')->on('payment_type')->onDelete('cascade');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

@@ -13,8 +13,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stores', function (Blueprint $table) {
-            $table->decimal('tax_rate', 5, 2)->default(0);
-            $table->string('tax_name')->default('Pajak');
+            if (!Schema::hasColumn('stores', 'tax_rate')) {
+                            $table->decimal('tax_rate', 5, 2)->default(0);            }
+            if (!Schema::hasColumn('stores', 'tax_name')) {
+                            $table->string('tax_name')->default('Pajak');            }
         });
     }
 

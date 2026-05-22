@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('verification_token')->nullable();
+            if (!Schema::hasColumn('users', 'verification_token')) {
+                            $table->string('verification_token')->nullable();            }
         });
     }
 
@@ -23,7 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('verification_token');
+            if (Schema::hasColumn('users', 'verification_token')) {
+                            $table->dropColumn('verification_token');            }
         });
     }
 };

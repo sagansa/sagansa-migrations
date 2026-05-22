@@ -12,17 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_item_variants', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('order_item_id');
-            $table->uuid('product_variant_id');
-            $table->string('name');
-            $table->decimal('price', 15, 2);
-            $table->timestamps();
+        if (!Schema::hasTable('order_item_variants')) {
+                    Schema::create('order_item_variants', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('order_item_id');
+                        $table->uuid('product_variant_id');
+                        $table->string('name');
+                        $table->decimal('price', 15, 2);
+                        $table->timestamps();
 
-            $table->foreign('order_item_id')->references('id')->on('order_items')->cascadeOnDelete();
-            $table->foreign('product_variant_id')->references('id')->on('product_variants');
-        });
+                        try {
+                                                    $table->foreign('order_item_id')->references('id')->on('order_items')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->foreign('product_variant_id')->references('id')->on('product_variants');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

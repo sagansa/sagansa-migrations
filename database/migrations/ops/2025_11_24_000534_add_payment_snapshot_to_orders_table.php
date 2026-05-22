@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->json('payment_snapshot')->nullable()->after('payment_type_id');
+            if (!Schema::hasColumn('orders', 'payment_snapshot')) {
+                            $table->json('payment_snapshot')->nullable()->after('payment_type_id');            }
         });
     }
 
@@ -23,7 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('payment_snapshot');
+            if (Schema::hasColumn('orders', 'payment_snapshot')) {
+                            $table->dropColumn('payment_snapshot');            }
         });
     }
 };

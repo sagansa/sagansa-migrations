@@ -27,7 +27,10 @@ return new class extends Migration
 
             if (!Schema::hasColumn('users', 'invited_by')) {
                 $table->uuid('invited_by')->nullable()->after('invited_at');
-                $table->foreign('invited_by')->references('id')->on('users')->nullOnDelete();
+                try {
+                                    $table->foreign('invited_by')->references('id')->on('users')->nullOnDelete();                } catch (\Throwable $e) {
+                    // Constraint/index may already exist or may already be absent on partial migrations.
+                }
             }
         });
     }
@@ -39,7 +42,10 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (Schema::hasColumn('users', 'invited_by')) {
-                $table->dropForeign(['invited_by']);
+                try {
+                                    $table->dropForeign(['invited_by']);                } catch (\Throwable $e) {
+                    // Constraint/index may already exist or may already be absent on partial migrations.
+                }
                 $table->dropColumn('invited_by');
             }
 

@@ -53,7 +53,9 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->primary(['id']);
+            if (\Illuminate\Support\Facades\DB::connection($this->getConnection())->getDriverName() !== 'sqlite') {
+                $table->primary(['id']);
+            }
             $table->foreign(['bank_id'])->references(['id'])->on('banks')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign(['district_id'])->references(['id'])->on('districts')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign(['employee_status_id'])->references(['id'])->on('employee_statuses')->onUpdate('cascade')->onDelete('cascade');

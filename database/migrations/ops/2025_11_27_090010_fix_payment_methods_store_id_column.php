@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
+            return; // payment_methods created with correct schema in SQLite; skip MySQL-specific fix
+        }
+
         // Check current column type
         $columnType = DB::select("SHOW COLUMNS FROM payment_methods WHERE Field = 'store_id'")[0]->Type ?? '';
         

@@ -6,16 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    protected $connection = 'mysql_ops';
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Make name field nullable for invited users
-            if (Schema::hasColumn('users', 'name')) {
-                            $table->string('name')->nullable()->change();            }
+            $table->string('phone_number')->nullable()->after('email');
         });
     }
 
@@ -25,9 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Revert name field to not null
-            if (Schema::hasColumn('users', 'name')) {
-                            $table->string('name')->nullable(false)->change();            }
+            $table->dropColumn('phone_number');
         });
     }
 };

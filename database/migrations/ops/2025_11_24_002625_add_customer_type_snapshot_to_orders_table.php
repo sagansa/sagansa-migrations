@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->json('customer_type_snapshot')->nullable()->after('customer_type_id');
+            if (!Schema::hasColumn('orders', 'customer_type_snapshot')) {
+                            $table->json('customer_type_snapshot')->nullable()->after('customer_type_id');            }
         });
     }
 
@@ -23,7 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('customer_type_snapshot');
+            if (Schema::hasColumn('orders', 'customer_type_snapshot')) {
+                            $table->dropColumn('customer_type_snapshot');            }
         });
     }
 };

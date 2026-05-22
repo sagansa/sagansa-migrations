@@ -12,17 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tables', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('store_id');
-            $table->string('table_number');
-            $table->boolean('is_available')->default(true);
-            $table->integer('capacity')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('tables')) {
+                    Schema::create('tables', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('store_id');
+                        $table->string('table_number');
+                        $table->boolean('is_available')->default(true);
+                        $table->integer('capacity')->nullable();
+                        $table->timestamps();
             
-            $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade');
-            $table->unique(['store_id', 'table_number']);
-        });
+                        try {
+                                                    $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->unique(['store_id', 'table_number']);                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

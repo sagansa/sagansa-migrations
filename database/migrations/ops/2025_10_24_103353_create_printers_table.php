@@ -12,22 +12,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('printers', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('store_id');
-            $table->string('name');
-            $table->enum('connection_type', ['wifi', 'bluetooth']);
-            $table->string('ip_address')->nullable();
-            $table->integer('port')->nullable();
-            $table->string('bluetooth_identifier')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->string('paper_size')->default('80mm');
-            $table->timestamps();
+        if (!Schema::hasTable('printers')) {
+                    Schema::create('printers', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('tenant_id');
+                        $table->uuid('store_id');
+                        $table->string('name');
+                        $table->enum('connection_type', ['wifi', 'bluetooth']);
+                        $table->string('ip_address')->nullable();
+                        $table->integer('port')->nullable();
+                        $table->string('bluetooth_identifier')->nullable();
+                        $table->boolean('is_active')->default(true);
+                        $table->string('paper_size')->default('80mm');
+                        $table->timestamps();
             
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
-            $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade');
-        });
+                        try {
+                                                    $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

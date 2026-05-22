@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -12,14 +13,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('categories', function (Blueprint $table) {
-            // Drop the existing unique index on 'name'
-            // Laravel usually names indexes as table_column_unique
-            $table->dropUnique('categories_name_unique');
+        if ($this->indexExists('categories', 'categories_name_unique')) {
+            Schema::table('categories', function (Blueprint $table) {
+                $table->dropUnique('categories_name_unique');
+            });
+        }
 
-            // Add new composite unique index
-            $table->unique(['tenant_id', 'name']);
-        });
+        if (!$this->indexExists('categories', 'categories_tenant_id_name_unique')) {
+            Schema::table('categories', function (Blueprint $table) {
+                $table->unique(['tenant_id', 'name']);
+            });
+        }
     }
 
     /**
@@ -27,9 +31,37 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('categories', function (Blueprint $table) {
-            $table->dropUnique(['tenant_id', 'name']);
-            $table->unique('name');
-        });
+        if ($this->indexExists('categories', 'categories_tenant_id_name_unique')) {
+            Schema::table('categories', function (Blueprint $table) {
+                $table->dropUnique(['tenant_id', 'name']);
+            });
+        }
+
+        if (!$this->indexExists('categories', 'categories_name_unique')) {
+            Schema::table('categories', function (Blueprint $table) {
+                $table->unique('name');
+            });
+        }
+    }
+
+    private function indexExists(string $table, string $index): bool
+    {
+        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
+            return (bool) DB::connection($this->connection)->selectOne(
+                "SELECT 1 FROM sqlite_master WHERE type = 'index' AND tbl_name = ? AND name = ?",
+                [$table, $index]
+            );
+        }
+        return (bool) DB::connection($this->connection)->selectOne(
+            <<<'SQL'
+            SELECT 1
+            FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = ?
+              AND INDEX_NAME = ?
+            LIMIT 1
+            SQL,
+            [$table, $index]
+        );
     }
 };

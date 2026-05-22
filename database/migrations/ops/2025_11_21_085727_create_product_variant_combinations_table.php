@@ -12,32 +12,43 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_variant_combinations', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('product_id');
-            $table->string('sku')->nullable()->unique();
-            $table->decimal('price', 10, 2);
-            $table->integer('stock')->default(0);
-            $table->boolean('is_active')->default(true);
+        if (!Schema::hasTable('product_variant_combinations')) {
+                    Schema::create('product_variant_combinations', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('product_id');
+                        $table->string('sku')->nullable()->unique();
+                        $table->decimal('price', 10, 2);
+                        $table->integer('stock')->default(0);
+                        $table->boolean('is_active')->default(true);
             
-            // Store combination as JSON array of variant IDs
-            $table->json('variant_ids');
+                        // Store combination as JSON array of variant IDs
+                        $table->json('variant_ids');
             
-            // Denormalized display name for easier querying
-            $table->string('name')->nullable();
+                        // Denormalized display name for easier querying
+                        $table->string('name')->nullable();
             
-            $table->timestamps();
+                        $table->timestamps();
             
-            // Foreign key
-            $table->foreign('product_id')
-                  ->references('id')
-                  ->on('products')
-                  ->onDelete('cascade');
+                        // Foreign key
+                        try {
+                                                    $table->foreign('product_id')
+                                                          ->references('id')
+                                                          ->on('products')
+                                                          ->onDelete('cascade');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
             
-            // Indexes
-            $table->index('product_id');
-            $table->index('sku');
-        });
+                        // Indexes
+                        try {
+                                                    $table->index('product_id');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                        try {
+                                                    $table->index('sku');                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**

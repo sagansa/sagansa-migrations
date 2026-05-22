@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
+            return; // payment_methods id already UUID in fresh SQLite DB; skip MySQL-specific fix
+        }
+
         // Check current column type for id
         $columnType = DB::select("SHOW COLUMNS FROM payment_methods WHERE Field = 'id'")[0]->Type ?? '';
         

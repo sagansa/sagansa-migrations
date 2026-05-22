@@ -17,6 +17,7 @@ return new class extends Migration
         if (!Schema::hasTable('users')) {
             Schema::create('users', function (Blueprint $table) {
                 $table->bigIncrements('id');
+                $table->uuid('uuid')->nullable()->unique()->after('id');
                 $table->string('name');
                 $table->string('email')->unique();
                 $table->timestamp('email_verified_at')->nullable();
@@ -33,62 +34,66 @@ return new class extends Migration
             });
         }
 
-        // 2. Permissions Table
-        if (!Schema::hasTable('permissions')) {
-            Schema::create('permissions', function (Blueprint $table) {
-                $table->bigIncrements('id');
-                $table->string('name');
-                $table->string('guard_name');
-                $table->timestamps();
-            });
-        }
+        $isSqlite = DB::connection($this->connection)->getDriverName() === 'sqlite';
 
-        // 3. Roles Table
-        if (!Schema::hasTable('roles')) {
-            Schema::create('roles', function (Blueprint $table) {
-                $table->bigIncrements('id');
-                $table->string('name');
-                $table->string('guard_name');
-                $table->timestamps();
-            });
-        }
+        if (!$isSqlite) {
+            // 2. Permissions Table
+            if (!Schema::hasTable('permissions')) {
+                Schema::create('permissions', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->string('name');
+                    $table->string('guard_name');
+                    $table->timestamps();
+                });
+            }
 
-        // 4. Model Has Permissions
-        if (!Schema::hasTable('model_has_permissions')) {
-            Schema::create('model_has_permissions', function (Blueprint $table) {
-                $table->unsignedBigInteger('permission_id');
-                $table->string('model_type');
-                $table->unsignedBigInteger('model_id');
+            // 3. Roles Table
+            if (!Schema::hasTable('roles')) {
+                Schema::create('roles', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->string('name');
+                    $table->string('guard_name');
+                    $table->timestamps();
+                });
+            }
 
-                $table->primary(['permission_id', 'model_id', 'model_type'], 'model_has_permissions_permission_model_type_primary');
-                $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
-                $table->index(['model_id', 'model_type'], 'model_has_permissions_model_id_model_type_index');
-            });
-        }
+            // 4. Model Has Permissions
+            if (!Schema::hasTable('model_has_permissions')) {
+                Schema::create('model_has_permissions', function (Blueprint $table) {
+                    $table->unsignedBigInteger('permission_id');
+                    $table->string('model_type');
+                    $table->unsignedBigInteger('model_id');
 
-        // 5. Model Has Roles
-        if (!Schema::hasTable('model_has_roles')) {
-            Schema::create('model_has_roles', function (Blueprint $table) {
-                $table->unsignedBigInteger('role_id');
-                $table->string('model_type');
-                $table->unsignedBigInteger('model_id');
+                    $table->primary(['permission_id', 'model_id', 'model_type'], 'model_has_permissions_permission_model_type_primary');
+                    $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
+                    $table->index(['model_id', 'model_type'], 'model_has_permissions_model_id_model_type_index');
+                });
+            }
 
-                $table->primary(['role_id', 'model_id', 'model_type'], 'model_has_roles_role_model_type_primary');
-                $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
-                $table->index(['model_id', 'model_type'], 'model_has_roles_model_id_model_type_index');
-            });
-        }
+            // 5. Model Has Roles
+            if (!Schema::hasTable('model_has_roles')) {
+                Schema::create('model_has_roles', function (Blueprint $table) {
+                    $table->unsignedBigInteger('role_id');
+                    $table->string('model_type');
+                    $table->unsignedBigInteger('model_id');
 
-        // 6. Role Has Permissions
-        if (!Schema::hasTable('role_has_permissions')) {
-            Schema::create('role_has_permissions', function (Blueprint $table) {
-                $table->unsignedBigInteger('permission_id');
-                $table->unsignedBigInteger('role_id');
+                    $table->primary(['role_id', 'model_id', 'model_type'], 'model_has_roles_role_model_type_primary');
+                    $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+                    $table->index(['model_id', 'model_type'], 'model_has_roles_model_id_model_type_index');
+                });
+            }
 
-                $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
-                $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
-                $table->primary(['permission_id', 'role_id'], 'role_has_permissions_permission_id_role_id_primary');
-            });
+            // 6. Role Has Permissions
+            if (!Schema::hasTable('role_has_permissions')) {
+                Schema::create('role_has_permissions', function (Blueprint $table) {
+                    $table->unsignedBigInteger('permission_id');
+                    $table->unsignedBigInteger('role_id');
+
+                    $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
+                    $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+                    $table->primary(['permission_id', 'role_id'], 'role_has_permissions_permission_id_role_id_primary');
+                });
+            }
         }
 
         // 7. Password Resets

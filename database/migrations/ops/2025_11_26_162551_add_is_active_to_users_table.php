@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_active')->default(true)->after('email_verified_at');
+            if (!Schema::hasColumn('users', 'is_active')) {
+                            $table->boolean('is_active')->default(true)->after('email_verified_at');            }
         });
     }
 
@@ -23,7 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_active');
+            if (Schema::hasColumn('users', 'is_active')) {
+                            $table->dropColumn('is_active');            }
         });
     }
 };

@@ -12,12 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('units', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('name')->unique();
-            $table->string('symbol', 25)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('units')) {
+                    Schema::create('units', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->string('name')->unique();
+                        $table->string('symbol', 25)->nullable();
+                        $table->timestamps();
+                    });
+        }
     }
 
     /**

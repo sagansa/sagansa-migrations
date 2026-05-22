@@ -12,17 +12,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('offline_sync_logs', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('device_identifier');
-            $table->string('payload_type'); // e.g., 'order', 'attendance', 'printer_job'
-            $table->string('payload_id'); // ID of the actual record
-            $table->enum('status', ['pending', 'synced', 'failed'])->default('pending');
-            $table->timestamp('synced_at')->nullable();
-            $table->text('error_details')->nullable();
-            $table->softDeletes();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('offline_sync_logs')) {
+                    Schema::create('offline_sync_logs', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->string('device_identifier');
+                        $table->string('payload_type'); // e.g., 'order', 'attendance', 'printer_job'
+                        $table->string('payload_id'); // ID of the actual record
+                        $table->enum('status', ['pending', 'synced', 'failed'])->default('pending');
+                        $table->timestamp('synced_at')->nullable();
+                        $table->text('error_details')->nullable();
+                        $table->softDeletes();
+                        $table->timestamps();
+                    });
+        }
     }
 
     /**

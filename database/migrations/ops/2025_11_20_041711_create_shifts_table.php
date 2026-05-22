@@ -12,17 +12,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shifts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('store_id')->constrained('stores')->cascadeOnDelete();
-            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
-            $table->decimal('start_cash', 15, 2);
-            $table->decimal('end_cash', 15, 2)->nullable();
-            $table->string('status')->default('open'); // open, closed
-            $table->timestamp('started_at');
-            $table->timestamp('ended_at')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('shifts')) {
+                    Schema::create('shifts', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->foreignUuid('store_id')->constrained('stores')->cascadeOnDelete();
+                        $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
+                        $table->decimal('start_cash', 15, 2);
+                        $table->decimal('end_cash', 15, 2)->nullable();
+                        $table->string('status')->default('open'); // open, closed
+                        $table->timestamp('started_at');
+                        $table->timestamp('ended_at')->nullable();
+                        $table->timestamps();
+                    });
+        }
     }
 
     /**

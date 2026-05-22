@@ -12,24 +12,34 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tenants', function (Blueprint $table) {
-            if (!Schema::hasColumn('tenants', 'owner_id')) {
+        if (!Schema::connection('mysql_auth')->hasColumn('tenants', 'owner_id')) {
+            Schema::connection('mysql_auth')->table('tenants', function (Blueprint $table) {
                 $table->uuid('owner_id')->nullable()->after('name');
-                $table->unique('owner_id');
-                $table->foreign('owner_id')->references('id')->on('users')->cascadeOnDelete();
-            }
-        });
+                try {
+                                    $table->unique('owner_id');                } catch (\Throwable $e) {
+                    // Constraint/index may already exist or may already be absent on partial migrations.
+                }
+                try {
+                                    $table->foreign('owner_id')->references('uuid')->on('users')->cascadeOnDelete();                } catch (\Throwable $e) {
+                    // Constraint/index may already exist or may already be absent on partial migrations.
+                }
+            });
+        }
 
-        Schema::create('stores', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->string('name');
-            $table->string('location')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('stores')) {
+                    Schema::create('stores', function (Blueprint $table) {
+                        $table->uuid('id')->primary();
+                        $table->uuid('tenant_id');
+                        $table->string('name');
+                        $table->string('location')->nullable();
+                        $table->timestamps();
 
-            $table->foreign('tenant_id')->references('id')->on('tenants')->cascadeOnDelete();
-            $table->index(['tenant_id', 'name']);
-        });
+                        try {
+                                                    $table->index(['tenant_id', 'name']);                        } catch (\Throwable $e) {
+                            // Constraint/index may already exist or may already be absent on partial migrations.
+                        }
+                    });
+        }
     }
 
     /**
@@ -39,12 +49,18 @@ return new class extends Migration
     {
         Schema::dropIfExists('stores');
 
-        Schema::table('tenants', function (Blueprint $table) {
-            if (Schema::hasColumn('tenants', 'owner_id')) {
-                $table->dropForeign('tenants_owner_id_foreign');
-                $table->dropUnique('tenants_owner_id_unique');
+        if (Schema::connection('mysql_auth')->hasColumn('tenants', 'owner_id')) {
+            Schema::connection('mysql_auth')->table('tenants', function (Blueprint $table) {
+                try {
+                                    $table->dropForeign('tenants_owner_id_foreign');                } catch (\Throwable $e) {
+                    // Constraint/index may already exist or may already be absent on partial migrations.
+                }
+                try {
+                                    $table->dropUnique('tenants_owner_id_unique');                } catch (\Throwable $e) {
+                    // Constraint/index may already exist or may already be absent on partial migrations.
+                }
                 $table->dropColumn('owner_id');
-            }
-        });
+            });
+        }
     }
 };

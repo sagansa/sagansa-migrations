@@ -14,10 +14,13 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasColumn('orders', 'status')) {
-            DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'completed', 'cancelled', 'saved') DEFAULT 'pending'");
+            if (DB::connection($this->connection)->getDriverName() !== 'sqlite') {
+                DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'completed', 'cancelled', 'saved') DEFAULT 'pending'");
+            }
         } else {
             Schema::table('orders', function (Blueprint $table) {
-                $table->enum('status', ['pending', 'completed', 'cancelled', 'saved'])->default('pending')->after('grand_total');
+                if (!Schema::hasColumn('orders', 'status')) {
+                                    $table->enum('status', ['pending', 'completed', 'cancelled', 'saved'])->default('pending')->after('grand_total');                }
             });
         }
     }
@@ -28,7 +31,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('status');
+            if (Schema::hasColumn('orders', 'status')) {
+                            $table->dropColumn('status');            }
         });
     }
 };

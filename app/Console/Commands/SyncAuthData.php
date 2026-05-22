@@ -34,7 +34,6 @@ class SyncAuthData extends Command
         }
 
         $tables = [
-            'users',
             'permissions',
             'roles',
             'model_has_permissions',

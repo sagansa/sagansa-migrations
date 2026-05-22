@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('payment_methods', function (Blueprint $table) {
-            $table->boolean('is_default')->default(false)->after('is_active');
+            if (!Schema::hasColumn('payment_methods', 'is_default')) {
+                            $table->boolean('is_default')->default(false)->after('is_active');            }
         });
 
         // Mark existing cash payment methods as default
@@ -49,7 +50,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('payment_methods', function (Blueprint $table) {
-            $table->dropColumn('is_default');
+            if (Schema::hasColumn('payment_methods', 'is_default')) {
+                            $table->dropColumn('is_default');            }
         });
     }
 };
