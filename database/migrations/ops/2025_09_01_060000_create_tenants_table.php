@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::hasTable('tenants')) {
-            Schema::create('tenants', function (Blueprint $table) {
+        if (! Schema::connection($this->connection)->hasTable('tenants')) {
+            Schema::connection($this->connection)->create('tenants', function (Blueprint $table) {
                 $table->uuid('id')->primary();
                 $table->string('name');
                 $table->uuid('owner_id')->nullable();
@@ -37,7 +37,7 @@ return new class extends Migration
             return;
         }
 
-        Schema::table('tenants', function (Blueprint $table) use ($needsOwnerId, $needsOperationMode, $needsFoodcourtConfig) {
+        Schema::connection($this->connection)->table('tenants', function (Blueprint $table) use ($needsOwnerId, $needsOperationMode, $needsFoodcourtConfig) {
             if ($needsOwnerId) {
                 $table->uuid('owner_id')->nullable()->after('name');
                 $table->index('owner_id');
@@ -59,6 +59,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tenants');
+        Schema::connection($this->connection)->dropIfExists('tenants');
     }
 };
