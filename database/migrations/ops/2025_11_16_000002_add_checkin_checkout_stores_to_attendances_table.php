@@ -21,18 +21,6 @@ return new class extends Migration
                             $table->uuid('check_out_store_id')->nullable()->after('check_in_store_id');            }
         });
 
-        if (!$this->foreignKeyExists('attendances', 'attendances_check_in_store_id_foreign')) {
-            Schema::table('attendances', function (Blueprint $table) {
-                $table->foreign('check_in_store_id')->references('id')->on('stores')->cascadeOnDelete();
-            });
-        }
-
-        if (!$this->foreignKeyExists('attendances', 'attendances_check_out_store_id_foreign')) {
-            Schema::table('attendances', function (Blueprint $table) {
-                $table->foreign('check_out_store_id')->references('id')->on('stores')->nullOnDelete();
-            });
-        }
-
         if (!$this->indexExists('attendances', 'attendances_check_in_store_id_index')) {
             Schema::table('attendances', function (Blueprint $table) {
                 $table->index('check_in_store_id');

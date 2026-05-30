@@ -15,8 +15,8 @@ return new class extends Migration
         if (!Schema::hasTable('order_settlements')) {
                     Schema::create('order_settlements', function (Blueprint $table) {
                         $table->uuid('id')->primary();
-                        $table->foreignUuid('order_id')->constrained()->cascadeOnDelete();
-                        $table->foreignUuid('store_id')->constrained()->cascadeOnDelete();
+                        $table->uuid('order_id');
+                        $table->uuid('store_id');
             
                         // Financial breakdown
                         $table->decimal('gross_amount', 10, 2);           // Subtotal for this store

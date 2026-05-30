@@ -23,7 +23,7 @@ return new class extends Migration
                         $table->timestamps();
 
                         try {
-                                                    $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('product_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                     });
@@ -36,7 +36,7 @@ return new class extends Migration
 
         if (!$this->foreignKeyExists('product_variants', 'product_variants_product_variant_group_id_foreign')) {
             Schema::table('product_variants', function (Blueprint $table) {
-                $table->foreign('product_variant_group_id')->references('id')->on('product_variant_groups')->cascadeOnDelete();
+                $table->index('product_variant_group_id');
             });
         }
     }

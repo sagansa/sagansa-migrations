@@ -12,20 +12,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::connection('mysql_auth')->hasColumn('tenants', 'owner_id')) {
-            Schema::connection('mysql_auth')->table('tenants', function (Blueprint $table) {
-                $table->uuid('owner_id')->nullable()->after('name');
-                try {
-                                    $table->unique('owner_id');                } catch (\Throwable $e) {
-                    // Constraint/index may already exist or may already be absent on partial migrations.
-                }
-                try {
-                                    $table->foreign('owner_id')->references('uuid')->on('users')->cascadeOnDelete();                } catch (\Throwable $e) {
-                    // Constraint/index may already exist or may already be absent on partial migrations.
-                }
-            });
-        }
-
         if (!Schema::hasTable('stores')) {
                     Schema::create('stores', function (Blueprint $table) {
                         $table->uuid('id')->primary();
@@ -48,19 +34,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('stores');
-
-        if (Schema::connection('mysql_auth')->hasColumn('tenants', 'owner_id')) {
-            Schema::connection('mysql_auth')->table('tenants', function (Blueprint $table) {
-                try {
-                                    $table->dropForeign('tenants_owner_id_foreign');                } catch (\Throwable $e) {
-                    // Constraint/index may already exist or may already be absent on partial migrations.
-                }
-                try {
-                                    $table->dropUnique('tenants_owner_id_unique');                } catch (\Throwable $e) {
-                    // Constraint/index may already exist or may already be absent on partial migrations.
-                }
-                $table->dropColumn('owner_id');
-            });
-        }
     }
 };

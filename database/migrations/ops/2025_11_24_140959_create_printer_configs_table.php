@@ -15,7 +15,7 @@ return new class extends Migration
         if (!Schema::hasTable('printer_configs')) {
                     Schema::create('printer_configs', function (Blueprint $table) {
                         $table->id();
-                        $table->foreignUuid('store_id')->constrained()->cascadeOnDelete();
+                        $table->uuid('store_id')->index();
                         $table->enum('type', ['bluetooth', 'wifi'])->default('bluetooth');
                         $table->string('name')->nullable();
             

@@ -20,7 +20,7 @@ return new class extends Migration
 
         if (!$this->foreignKeyExists('orders', 'orders_customer_id_foreign')) {
             Schema::table('orders', function (Blueprint $table) {
-                $table->foreign('customer_id')->references('id')->on('customers')->onDelete('set null');
+                $table->index('customer_id');
             });
         }
     }

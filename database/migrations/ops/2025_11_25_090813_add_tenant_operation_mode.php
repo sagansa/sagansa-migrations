@@ -12,16 +12,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add operation mode to tenants
-        Schema::connection('mysql_auth')->table('tenants', function (Blueprint $table) {
-            if (!Schema::connection('mysql_auth')->hasColumn('tenants', 'operation_mode')) {
-                $table->string('operation_mode', 20)->default('standard')->after('name');
-            }
-            if (!Schema::connection('mysql_auth')->hasColumn('tenants', 'foodcourt_config')) {
-                $table->json('foodcourt_config')->nullable()->after('operation_mode');
-            }
-        });
-
         // Create table zones for better organization
         if (!Schema::hasTable('table_zones')) {
                     Schema::create('table_zones', function (Blueprint $table) {
@@ -47,18 +37,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('table_zones');
-        
-        Schema::connection('mysql_auth')->table('tenants', function (Blueprint $table) {
-            $columnsToDrop = [];
-            if (Schema::connection('mysql_auth')->hasColumn('tenants', 'operation_mode')) {
-                $columnsToDrop[] = 'operation_mode';
-            }
-            if (Schema::connection('mysql_auth')->hasColumn('tenants', 'foodcourt_config')) {
-                $columnsToDrop[] = 'foodcourt_config';
-            }
-            if (!empty($columnsToDrop)) {
-                $table->dropColumn($columnsToDrop);
-            }
-        });
     }
 };

@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -12,11 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // Make name field nullable for invited users
-            if (Schema::hasColumn('users', 'name')) {
-                            $table->string('name')->nullable()->change();            }
-        });
+        // User profile columns live in sagansa_user.
     }
 
     /**
@@ -24,10 +18,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // Revert name field to not null
-            if (Schema::hasColumn('users', 'name')) {
-                            $table->string('name')->nullable(false)->change();            }
-        });
+        // User profile columns live in sagansa_user.
     }
 };

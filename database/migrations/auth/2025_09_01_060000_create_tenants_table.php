@@ -1,16 +1,16 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-
 return new class extends Migration
 {
-    protected $connection = 'mysql_ops';
+    protected $connection = 'mysql_auth';
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        // Auth tables live in sagansa_user and must not be duplicated in sagansa_ops.
+        // Tenants are owned by apps/ops and live in sagansa_ops.
+        // Auth keeps only user/auth tables in sagansa_user.
     }
 
     /**
@@ -18,6 +18,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Auth tables live in sagansa_user and must not be dropped from sagansa_ops migrations.
+        // Tenants are not created by auth migrations.
     }
 };

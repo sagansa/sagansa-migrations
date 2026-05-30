@@ -16,11 +16,11 @@ return new class extends Migration
         Schema::table('tables', function (Blueprint $table) {
             // Add tenant_id for food court mode
             if (!Schema::hasColumn('tables', 'tenant_id')) {
-                            $table->foreignUuid('tenant_id')->nullable()->after('id')->constrained()->cascadeOnDelete();            }
+                            $table->uuid('tenant_id')->nullable()->after('id')->index();            }
             
             // Add zone support
             if (!Schema::hasColumn('tables', 'zone_id')) {
-                            $table->foreignUuid('zone_id')->nullable()->after('tenant_id')->constrained('table_zones')->nullOnDelete();            }
+                            $table->uuid('zone_id')->nullable()->after('tenant_id')->index();            }
             
             // Add QR code
             if (!Schema::hasColumn('tables', 'qr_code')) {
@@ -60,8 +60,9 @@ return new class extends Migration
         }
         
         Schema::table('tables', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('tenant_id');
-            $table->dropConstrainedForeignId('zone_id');
+            $table->dropColumn('tenant_id');
+            if (Schema::hasColumn('tables', 'zone_id')) {
+                            $table->dropColumn('zone_id');            }
             if (Schema::hasColumn('tables', 'qr_code')) {
                             $table->dropColumn('qr_code');            }
             

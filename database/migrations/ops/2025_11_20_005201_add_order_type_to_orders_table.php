@@ -22,15 +22,15 @@ return new class extends Migration
                             $table->uuid('customer_type_id')->nullable()->after('table_id');            }
         });
 
-        if (!$this->foreignKeyExists('orders', 'orders_table_id_foreign')) {
+        if (!$this->indexExists('orders', 'orders_table_id_index')) {
             Schema::table('orders', function (Blueprint $table) {
-                $table->foreign('table_id')->references('id')->on('tables')->onDelete('set null');
+                $table->index('table_id');
             });
         }
 
-        if (!$this->foreignKeyExists('orders', 'orders_customer_type_id_foreign')) {
+        if (!$this->indexExists('orders', 'orders_customer_type_id_index')) {
             Schema::table('orders', function (Blueprint $table) {
-                $table->foreign('customer_type_id')->references('id')->on('customer_types')->onDelete('set null');
+                $table->index('customer_type_id');
             });
         }
     }
@@ -59,6 +59,20 @@ return new class extends Migration
                 });
             }
         }
+    }
+
+    private function indexExists(string $table, string $index): bool
+    {
+        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
+            return (bool) DB::connection($this->connection)->selectOne(
+                "SELECT 1 FROM sqlite_master WHERE type = 'index' AND tbl_name = ? AND name = ?",
+                [$table, $index]
+            );
+        }
+        return (bool) DB::connection($this->connection)->selectOne(
+            "SELECT 1 FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ? LIMIT 1",
+            [$table, $index]
+        );
     }
 
     private function foreignKeyExists(string $table, string $constraint): bool

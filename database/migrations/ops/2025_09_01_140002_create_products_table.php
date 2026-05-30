@@ -34,22 +34,18 @@ return new class extends Migration
                         $table->softDeletes();
 
                         try {
-                                                    $table->foreign('unit_id')->references('id')->on('units')->nullOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('unit_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('category_id')->references('id')->on('categories')->nullOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('category_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('user_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
 
-                        try {
-                                                    $table->index(['category_id']);                        } catch (\Throwable $e) {
-                            // Constraint/index may already exist or may already be absent on partial migrations.
-                        }
                         try {
                                                     $table->index(['tenant_id']);                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.

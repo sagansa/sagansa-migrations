@@ -29,19 +29,19 @@ return new class extends Migration
                         $table->timestamps();
 
                         try {
-                                                    $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade');                        } catch (\Throwable $e) {
+                                                    $table->index('store_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');                        } catch (\Throwable $e) {
+                                                    $table->index('user_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('table_id')->references('id')->on('tables');                        } catch (\Throwable $e) {
+                                                    $table->index('table_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('customer_type_id')->references('id')->on('customer_types');                        } catch (\Throwable $e) {
+                                                    $table->index('customer_type_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                     });

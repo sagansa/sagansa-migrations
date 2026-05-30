@@ -51,13 +51,13 @@ return new class extends Migration
 
         if (!$this->foreignKeyExists('order_items', 'order_items_product_id_foreign')) {
             Schema::table('order_items', function (Blueprint $table) {
-                $table->foreign('product_id')->references('id')->on('products')->nullOnDelete();
+                $table->index('product_id');
             });
         }
 
         if (!$this->foreignKeyExists('order_items', 'order_items_product_variant_id_foreign')) {
             Schema::table('order_items', function (Blueprint $table) {
-                $table->foreign('product_variant_id')->references('id')->on('product_variants')->nullOnDelete();
+                $table->index('product_variant_id');
             });
         }
     }

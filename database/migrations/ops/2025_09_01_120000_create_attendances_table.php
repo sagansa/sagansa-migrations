@@ -32,19 +32,19 @@ return new class extends Migration
                         $table->softDeletes();
 
                         try {
-                                                    $table->foreign('store_id')->references('id')->on('stores')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('store_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('shift_store_id')->references('id')->on('shift_stores')->nullOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('shift_store_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('created_by_id')->references('id')->on('users')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('created_by_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('approved_by_id')->references('id')->on('users')->nullOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('approved_by_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                     });

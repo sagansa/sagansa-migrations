@@ -30,11 +30,11 @@ return new class extends Migration
                         $table->timestamps();
 
                         try {
-                                                    $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('user_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('approved_by_id')->references('id')->on('users')->nullOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('approved_by_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {

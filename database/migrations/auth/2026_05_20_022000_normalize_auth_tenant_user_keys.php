@@ -14,18 +14,9 @@ return new class extends Migration
             return;
         }
 
-        if (!Schema::hasTable('users') || !Schema::hasTable('tenants')) {
+        if (!Schema::hasTable('users')) {
             return;
         }
-
-        DB::connection($this->connection)->statement("
-            UPDATE tenants t
-            JOIN users u ON t.owner_id = CAST(u.id AS CHAR)
-            LEFT JOIN tenants existing_owner ON existing_owner.owner_id = u.uuid
-            SET t.owner_id = u.uuid
-            WHERE u.uuid IS NOT NULL
-              AND existing_owner.id IS NULL
-        ");
 
         if (Schema::hasTable('tenant_user')) {
             DB::connection($this->connection)->statement("
@@ -44,17 +35,6 @@ return new class extends Migration
                 JOIN users u ON tu.assigned_by = CAST(u.id AS CHAR)
                 SET tu.assigned_by = u.uuid
                 WHERE u.uuid IS NOT NULL
-            ");
-
-            DB::connection($this->connection)->statement("
-                INSERT INTO tenant_user (tenant_id, user_id, role, assigned_by, created_at, updated_at)
-                SELECT t.id, t.owner_id, 'owner', t.owner_id, NOW(), NOW()
-                FROM tenants t
-                JOIN users u ON u.uuid = t.owner_id
-                LEFT JOIN tenant_user tu
-                    ON tu.tenant_id = t.id
-                    AND tu.user_id = t.owner_id
-                WHERE tu.user_id IS NULL
             ");
         }
 

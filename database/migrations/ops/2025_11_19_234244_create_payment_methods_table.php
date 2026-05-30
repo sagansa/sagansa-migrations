@@ -15,7 +15,7 @@ return new class extends Migration
         if (!Schema::hasTable('payment_methods')) {
             Schema::create('payment_methods', function (Blueprint $table) {
                 $table->uuid('id')->primary();
-                $table->foreignUuid('store_id')->constrained()->cascadeOnDelete();
+                $table->uuid('store_id')->index();
                 $table->string('type'); // cash, qris, transfer, debit
                 $table->string('name');
                 $table->boolean('is_active')->default(true);

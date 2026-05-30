@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!$this->foreignKeyExists('printer_jobs', 'printer_jobs_order_id_foreign')) {
+        if (!$this->foreignKeyExists('printer_jobs', 'printer_jobs_order_id_foreign') && !$this->indexExists('printer_jobs', 'printer_jobs_order_id_index')) {
             Schema::table('printer_jobs', function (Blueprint $table) {
-                $table->foreign('order_id')->references('id')->on('orders')->onDelete('set null');
+                $table->index('order_id');
             });
         }
     }
@@ -30,6 +30,17 @@ return new class extends Migration
                 $table->dropForeign(['order_id']);
             });
         }
+    }
+
+    private function indexExists(string $table, string $indexName): bool
+    {
+        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
+            return false; // Skip check for SQLite
+        }
+        return (bool) DB::connection($this->connection)->selectOne(
+            "SELECT 1 FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ? LIMIT 1",
+            [$table, $indexName]
+        );
     }
 
     private function foreignKeyExists(string $table, string $constraint): bool

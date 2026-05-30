@@ -25,7 +25,7 @@ return new class extends Migration
                         $table->timestamps();
             
                         try {
-                                                    $table->foreign('printer_id')->references('id')->on('printers')->onDelete('cascade');                        } catch (\Throwable $e) {
+                                                    $table->index('printer_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         // Foreign key to orders table will be added after the orders table is created

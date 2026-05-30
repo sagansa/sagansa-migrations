@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    protected $connection = 'mysql_auth';
 
     /**
      * Run the migrations.
@@ -35,7 +34,7 @@ return new class extends Migration
             });
         }
 
-        $isSqlite = DB::connection($this->connection)->getDriverName() === 'sqlite';
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
 
         if (!$isSqlite) {
             // 2. Permissions Table

@@ -21,11 +21,11 @@ return new class extends Migration
                         $table->primary(['product_id', 'store_id']);
 
                         try {
-                                                    $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('product_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('store_id')->references('id')->on('stores')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('store_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                     });

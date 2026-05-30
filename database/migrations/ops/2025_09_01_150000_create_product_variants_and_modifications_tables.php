@@ -24,7 +24,7 @@ return new class extends Migration
                         $table->timestamps();
 
                         try {
-                                                    $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('product_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
@@ -48,7 +48,7 @@ return new class extends Migration
                         $table->timestamps();
 
                         try {
-                                                    $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();                        } catch (\Throwable $e) {
+                                                    $table->index('product_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {

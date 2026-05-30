@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -12,18 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('personal_access_tokens')) {
-                    Schema::create('personal_access_tokens', function (Blueprint $table) {
-                        $table->id()->primary();
-                        $table->uuidMorphs('tokenable');
-                        $table->text('name');
-                        $table->string('token', 64)->unique();
-                        $table->text('abilities')->nullable();
-                        $table->timestamp('last_used_at')->nullable();
-                        $table->timestamp('expires_at')->nullable()->index();
-                        $table->timestamps();
-                    });
-        }
+        // Sanctum tokens live in sagansa_user and must not be duplicated in sagansa_ops.
     }
 
     /**
@@ -31,6 +18,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('personal_access_tokens');
+        // Sanctum tokens live in sagansa_user and must not be dropped from sagansa_ops migrations.
     }
 };

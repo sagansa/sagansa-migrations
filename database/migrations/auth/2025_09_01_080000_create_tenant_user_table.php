@@ -21,10 +21,7 @@ return new class extends Migration
                         $table->timestamps();
 
                         $table->primary(['tenant_id', 'user_id']);
-                        try {
-                                                    $table->foreign('tenant_id')->references('id')->on('tenants')->cascadeOnDelete();                        } catch (\Throwable $e) {
-                            // Constraint/index may already exist or may already be absent on partial migrations.
-                        }
+                        $table->index('tenant_id');
                         try {
                                                     $table->foreign('user_id')->references('uuid')->on('users')->cascadeOnDelete();                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.

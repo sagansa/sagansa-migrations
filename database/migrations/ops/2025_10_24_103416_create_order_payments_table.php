@@ -26,11 +26,11 @@ return new class extends Migration
                         $table->timestamps();
             
                         try {
-                                                    $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');                        } catch (\Throwable $e) {
+                                                    $table->index('order_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                         try {
-                                                    $table->foreign('payment_type_id')->references('id')->on('payment_type')->onDelete('cascade');                        } catch (\Throwable $e) {
+                                                    $table->index('payment_type_id');                        } catch (\Throwable $e) {
                             // Constraint/index may already exist or may already be absent on partial migrations.
                         }
                     });

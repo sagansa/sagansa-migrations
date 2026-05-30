@@ -13,7 +13,7 @@ return new class extends Migration
         if (!Schema::hasTable('user_details')) {
                     Schema::create('user_details', function (Blueprint $table) {
                         $table->uuid('id')->primary(); // matches user uuid
-                        $table->foreignUuid('tenant_id')->nullable()->constrained('tenants')->nullOnDelete();
+                        $table->uuid('tenant_id')->nullable()->index();
                         $table->string('role')->default('staff');
                         $table->boolean('is_active')->default(true);
                         $table->uuid('manager_id')->nullable();
