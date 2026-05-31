@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -9,8 +10,8 @@ return new class extends Migration
 
     public function up(): void
     {
-        if (!Schema::hasTable('user_details')) {
-            Schema::create('user_details', function (Blueprint $table) {
+        if (! Schema::connection($this->connection)->hasTable('user_details')) {
+            Schema::connection($this->connection)->create('user_details', function (Blueprint $table) {
                 $table->uuid('id')->primary();
                 $table->uuid('tenant_id')->nullable()->index();
                 $table->string('role')->default('staff');
@@ -32,6 +33,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('user_details');
+        Schema::connection($this->connection)->dropIfExists('user_details');
     }
 };
