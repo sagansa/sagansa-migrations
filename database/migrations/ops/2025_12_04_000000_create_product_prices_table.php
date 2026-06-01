@@ -18,7 +18,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('store_id');
             $table->uuid('product_id');
-            $table->uuid('variant_id')->nullable();
             $table->uuid('customer_type_id');
             $table->unsignedBigInteger('price');
             $table->boolean('is_active')->default(true);
@@ -26,11 +25,10 @@ return new class extends Migration
 
             $table->index('store_id');
             $table->index('product_id');
-            $table->index('variant_id');
             $table->index('customer_type_id');
             $table->unique(
-                ['store_id', 'product_id', 'variant_id', 'customer_type_id'],
-                'product_prices_scope_unique'
+                ['store_id', 'product_id', 'customer_type_id'],
+                'product_prices_store_product_type_unique'
             );
         });
 
@@ -38,7 +36,6 @@ return new class extends Migration
             Schema::connection($this->connection)->table('product_prices', function (Blueprint $table) {
                 $table->foreign('store_id')->references('id')->on('stores')->cascadeOnDelete();
                 $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();
-                $table->foreign('variant_id')->references('id')->on('product_variant_combinations')->nullOnDelete();
                 $table->foreign('customer_type_id')->references('id')->on('customer_types')->cascadeOnDelete();
             });
         } catch (Throwable) {
