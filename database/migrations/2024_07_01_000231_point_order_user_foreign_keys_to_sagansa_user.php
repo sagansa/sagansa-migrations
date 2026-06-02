@@ -19,12 +19,12 @@ return new class extends Migration
 
     public function up(): void
     {
-        $mainDatabase = DB::connection('mysql')->getDatabaseName();
+        $authDatabase = $this->authDatabase();
 
         foreach ($this->foreignKeys as [$table, $column, $constraint]) {
             $this->dropForeignIfExists($table, $constraint);
             $this->normalizeZeroDateTimes($table);
-            $this->addForeign($table, $column, $constraint, $mainDatabase);
+            $this->addForeign($table, $column, $constraint, $authDatabase);
         }
     }
 

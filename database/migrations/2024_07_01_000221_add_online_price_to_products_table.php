@@ -11,16 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('products') || Schema::hasColumn('products', 'online_price')) {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
-            if (!Schema::hasColumn('products', 'online_price')) {
-                $table->decimal('online_price', 15, 2)->default(0)->after('image');
-            }
-    });
-    }/**
+            $table->decimal('online_price', 15, 2)->default(0)->after('image');
+        });
+    }
+
+    /**
      * Reverse the migrations.
      */
     public function down(): void
     {
+        if (!Schema::hasTable('products') || !Schema::hasColumn('products', 'online_price')) {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn('online_price');
         });
