@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('applicant_details') || Schema::hasColumn('applicant_details', 'is_experienced')) {
+            return;
+        }
+
         Schema::table('applicant_details', function (Blueprint $table) {
             $table->boolean('is_experienced')->default(true)->after('user_id');
         });
@@ -23,6 +27,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasTable('applicant_details') || ! Schema::hasColumn('applicant_details', 'is_experienced')) {
+            return;
+        }
+
         Schema::table('applicant_details', function (Blueprint $table) {
             $table->dropColumn('is_experienced');
         });

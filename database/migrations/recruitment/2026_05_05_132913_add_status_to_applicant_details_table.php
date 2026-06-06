@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('applicant_details') || Schema::hasColumn('applicant_details', 'status')) {
+            return;
+        }
+
         Schema::table('applicant_details', function (Blueprint $table) {
             $table->string('status')->default('draft')->after('user_id');
         });
@@ -23,6 +27,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasTable('applicant_details') || ! Schema::hasColumn('applicant_details', 'status')) {
+            return;
+        }
+
         Schema::table('applicant_details', function (Blueprint $table) {
             $table->dropColumn('status');
         });
