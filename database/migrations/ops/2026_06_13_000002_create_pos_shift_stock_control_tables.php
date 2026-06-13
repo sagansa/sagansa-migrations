@@ -42,6 +42,7 @@ return new class extends Migration
                 $table->uuid('product_id')->index();
                 $table->unsignedInteger('opening_stock')->default(0);
                 $table->unsignedInteger('addition_stock')->default(0);
+                $table->integer('adjustment_stock')->default(0);
                 $table->unsignedInteger('sold_quantity')->default(0);
                 $table->integer('expected_closing_stock')->default(0);
                 $table->unsignedInteger('actual_closing_stock')->nullable();
@@ -88,6 +89,12 @@ return new class extends Migration
         if ($schema->hasTable('orders') && ! $schema->hasColumn('orders', 'shift_session_id')) {
             $schema->table('orders', function (Blueprint $table) {
                 $table->uuid('shift_session_id')->nullable()->after('store_id')->index();
+            });
+        }
+
+        if ($schema->hasTable('pos_shift_stock_items') && ! $schema->hasColumn('pos_shift_stock_items', 'adjustment_stock')) {
+            $schema->table('pos_shift_stock_items', function (Blueprint $table) {
+                $table->integer('adjustment_stock')->default(0)->after('addition_stock');
             });
         }
     }
