@@ -15,10 +15,14 @@ return new class extends Migration
             return;
         }
 
-        DB::connection($this->connection)
-            ->table('product_prices')
-            ->whereNotNull('variant_id')
-            ->delete();
+        $hasVariantColumn = Schema::connection($this->connection)->hasColumn('product_prices', 'variant_id');
+
+        if ($hasVariantColumn) {
+            DB::connection($this->connection)
+                ->table('product_prices')
+                ->whereNotNull('variant_id')
+                ->delete();
+        }
 
         $rows = DB::connection($this->connection)
             ->table('product_prices')
@@ -36,10 +40,12 @@ return new class extends Migration
         }
 
         Schema::connection($this->connection)->table('product_prices', function (Blueprint $table) {
-            try {
-                $table->dropForeign(['variant_id']);
-            } catch (Throwable) {
-                // FK may not exist.
+            if (Schema::connection($this->connection)->hasColumn('product_prices', 'variant_id')) {
+                try {
+                    $table->dropForeign(['variant_id']);
+                } catch (Throwable) {
+                    // FK may not exist.
+                }
             }
 
             try {
