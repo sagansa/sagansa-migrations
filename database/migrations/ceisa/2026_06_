@@ -1,0 +1,65 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+/**
+ * Tabel untuk menyimpan dokumen Manifes NVOCC (openapi-manifes, CEISA 4.0).
+ *
+ * Berbeda dari PIB yang bersifat outbound (kirim deklarasi ke BC), Manifes
+ * biasanya berupa dokument pelaporan pengangkut. Kolom difokuskan untuk
+ * kebutuhan tracking status + audit (PRD: Fokus utama = GET status).
+ *
+ * Sumber field: OpenAPI Portal — openapi-manifes (VERIFIED).
+ *   - nomor_aju: nomorAju (path param `/manifes/nvocc/status/{nomorAju}`)
+ *   - kode_kantor, jenis_manifes, nomor_voyage, nama_sarana_pengangkut, dll.
+ */
+return new class extends Migration
+{
+    protected $connection = 'mysql_ceisa';
+
+    public function up(): void
+    {
+        if (!Schema::connection($this->connection)->hasTable('manifes_documents')) {
+            Schema::connection($this->connection)->create('manifes_documents', function (Blueprint $table) {
+                $table->id();
+                $table->string('nomor_aju', 32)->unique();
+                $table->string('kode_kantor', 16)->nullable();
+                $table->string('jenis_manifes', 8)->nullable();
+                $table->string('nomor_voyage', 64)->nullable();
+                $table->string('nama_sarana_pengangkut', 255)->nullable();
+                $table->string('imo_number', 64)->nullable();
+                $table->string('mode_pengangkut', 32)->nullable();
+                $table->string('kode_negara', 4)->nullable();
+
+                // Status tracking
+                $table->string('status', 32)->default('DRAFT'); // DRAFT, READY, PROSES, REKON, dll.
+                $table->string('id_nvocc_header', 64)->nullable(); // dari response draft/kirim
+                $table->string('nomor_bc11', 32)->nullable();
+                $table->date('tanggal_bc11')->nullable();
+                $table->string('nomor_daftar', 32)->nullable();
+
+                // Timestamps event
+                $table->timestamp('drafted_at')->nullable();
+                $table->timestamp('submitted_at')->nullable();
+                $table->timestamp('rekon_at')->nullable();
+                $table->timestamp('last_status_check_at')->nullable();
+
+                // Raw payload cache (JSON) dari response BC terakhir
+                $table->json('last_status_response')->nullable();
+
+                $table->timestamps();
+
+                $table->index('status');
+                $table->index('kode_kantor');
+                $table->index('submitted_at');
+            });
+        }
+    }
+
+    public function down(): void
+    {
+        Schema::connection($this->connection)->dropIfExists('manifes_documents');
+    }
+};
