@@ -84,7 +84,7 @@ return [
             ]) : [],
         ],
 
-        'mysql_rec' => [
+        'mysql_recruitment' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
             'host' => env('DB_RECRUITMENT_HOST', '127.0.0.1'),
