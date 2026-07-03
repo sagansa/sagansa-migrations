@@ -14,12 +14,12 @@ return new class extends Migration
     public function up(): void
     {
         $perms = [
-            'view_panel::monthly::salary',
-            'view_any_panel::monthly::salary',
-            'create_panel::monthly::salary',
-            'update_panel::monthly::salary',
-            'delete_panel::monthly::salary',
-            'delete_any_panel::monthly::salary'
+            'view_panel::salary::rate',
+            'view_any_panel::salary::rate',
+            'create_panel::salary::rate',
+            'update_panel::salary::rate',
+            'delete_panel::salary::rate',
+            'delete_any_panel::salary::rate'
         ];
 
         $now = Carbon::now();
