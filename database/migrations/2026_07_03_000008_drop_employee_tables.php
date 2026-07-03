@@ -15,38 +15,40 @@ return new class extends Migration
     {
         // 1. Drop foreign keys referencing employees table
         if (Schema::hasTable('savings')) {
-            Schema::table('savings', function (Blueprint $table) {
-                try {
+            try {
+                Schema::table('savings', function (Blueprint $table) {
                     $table->dropForeign('savings_employee_id_foreign');
-                } catch (\Exception $e) {}
-            });
+                });
+            } catch (\Exception $e) {}
         }
 
         if (Schema::hasTable('contract_employees')) {
-            Schema::table('contract_employees', function (Blueprint $table) {
-                try {
+            try {
+                Schema::table('contract_employees', function (Blueprint $table) {
                     $table->dropForeign('contract_employees_employee_id_foreign');
-                } catch (\Exception $e) {}
-            });
+                });
+            } catch (\Exception $e) {}
         }
 
         if (Schema::hasTable('working_experiences')) {
-            Schema::table('working_experiences', function (Blueprint $table) {
-                try {
+            try {
+                Schema::table('working_experiences', function (Blueprint $table) {
                     $table->dropForeign('working_experiences_employee_id_foreign');
-                } catch (\Exception $e) {}
-            });
+                });
+            } catch (\Exception $e) {}
         }
 
         if (Schema::hasTable('movement_asset_results')) {
-            Schema::table('movement_asset_results', function (Blueprint $table) {
-                try {
+            try {
+                Schema::table('movement_asset_results', function (Blueprint $table) {
                     $table->dropForeign('movement_asset_results_executor_id_foreign');
-                } catch (\Exception $e) {}
-                try {
+                });
+            } catch (\Exception $e) {}
+            try {
+                Schema::table('movement_asset_results', function (Blueprint $table) {
                     $table->dropForeign('movement_asset_results_supervisor_id_foreign');
-                } catch (\Exception $e) {}
-            });
+                });
+            } catch (\Exception $e) {}
         }
 
         // 2. Drop the tables
@@ -54,6 +56,7 @@ return new class extends Migration
         Schema::dropIfExists('contract_employees');
         Schema::dropIfExists('savings');
         Schema::dropIfExists('employees');
+        Schema::dropIfExists('contract_locations');
     }
 
     /**
