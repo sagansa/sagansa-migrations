@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->string('slug')->unique();
                 $table->text('description')->nullable();
                 $table->string('image')->nullable();
-                $table->unsignedDecimal('online_price', 15, 2)->default(0);
+                $table->decimal('online_price', 15, 2)->unsigned()->default(0);
                 $table->unsignedBigInteger('online_category_id')->index();
                 $table->unsignedBigInteger('unit_id')->index();
                 $table->boolean('is_active')->default(true);
@@ -49,7 +49,7 @@ return new class extends Migration
                 $table->unsignedBigInteger('product_online_group_id')->index();
                 $table->integer('min_quantity');
                 $table->integer('max_quantity')->nullable();
-                $table->unsignedDecimal('price', 15, 2);
+                $table->decimal('price', 15, 2)->unsigned();
                 $table->string('label')->nullable();
                 $table->timestamps();
 
