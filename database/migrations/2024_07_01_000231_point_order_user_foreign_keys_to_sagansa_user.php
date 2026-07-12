@@ -19,6 +19,10 @@ return new class extends Migration
 
     public function up(): void
     {
+        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
+            return;
+        }
+
         $authDatabase = $this->authDatabase();
 
         foreach ($this->foreignKeys as [$table, $column, $constraint]) {
@@ -30,6 +34,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
+            return;
+        }
+
         $mainDatabase = DB::connection('mysql')->getDatabaseName();
 
         foreach ($this->foreignKeys as [$table, $column, $constraint]) {

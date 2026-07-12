@@ -10,6 +10,10 @@ return new class extends Migration
 
     public function up(): void
     {
+        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
+            return;
+        }
+
         if (!Schema::hasTable('permissions')) {
             return;
         }
