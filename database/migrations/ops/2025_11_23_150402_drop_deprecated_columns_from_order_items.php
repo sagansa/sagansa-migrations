@@ -25,12 +25,21 @@ return new class extends Migration
             });
         }
 
+        $isSqlite = DB::connection($this->connection)->getDriverName() === 'sqlite';
+
         foreach (['product_id', 'product_variant_id', 'name_snapshot'] as $column) {
-            if (Schema::hasColumn('order_items', $column)) {
-                Schema::table('order_items', function (Blueprint $table) use ($column) {
-                    $table->dropColumn($column);
-                });
+            if (! Schema::hasColumn('order_items', $column)) {
+                continue;
             }
+
+            // SQLite cannot DROP COLUMN while an index references it; drop the index first.
+            if ($isSqlite) {
+                $this->dropSqliteIndexIfExists('order_items', $column);
+            }
+
+            Schema::table('order_items', function (Blueprint $table) use ($column) {
+                $table->dropColumn($column);
+            });
         }
     }
 
@@ -91,5 +100,28 @@ return new class extends Migration
             SQL,
             [$table, $constraint]
         );
+    }
+
+    /**
+     * Drop any single-column index on {table}.{column} (SQLite only).
+     * SQLite DROP COLUMN fails if an index still references the column.
+     */
+    private function dropSqliteIndexIfExists(string $table, string $column): void
+    {
+        $indexes = DB::connection($this->connection)->select("PRAGMA index_list({$table})");
+        foreach ($indexes as $idx) {
+            $idxArray = (array) $idx;
+            $indexName = $idxArray['name'] ?? $idxArray['NAME'] ?? null;
+            if ($indexName === null) {
+                continue;
+            }
+            $columns = DB::connection($this->connection)->select("PRAGMA index_info({$indexName})");
+            $colNames = array_map(fn ($c) => ((array) $c)['name'] ?? ((array) $c)['NAME'] ?? null, $columns);
+            // Only drop SINGLE-column indexes on exactly this column.
+            // Multi-column indexes are left intact (dropping a column from them is a separate concern).
+            if (count($colNames) === 1 && in_array($column, $colNames, true)) {
+                DB::connection($this->connection)->statement("DROP INDEX IF EXISTS {$indexName}");
+            }
+        }
     }
 };
