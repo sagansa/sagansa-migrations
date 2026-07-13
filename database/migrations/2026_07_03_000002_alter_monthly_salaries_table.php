@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -14,14 +15,15 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('monthly_salaries')) {
-            Schema::table('monthly_salaries', function (Blueprint $table) {
-                // Drop foreign key and column if it exists
-                if (Schema::hasColumn('monthly_salaries', 'presence_id')) {
-                    try {
-                        $table->dropForeign('monthly_salaries_presence_id_foreign');
-                    } catch (\Exception $e) {
-                        // ignore if foreign key doesn't exist
-                    }
+            $isSqlite = DB::connection($this->connection)->getDriverName() === 'sqlite';
+
+            // SQLite stores FK definitions inline in the table schema and cannot
+            // drop a column that a FK references (table-rebuild would be required).
+            // For the test DB, skip dropping presence_id and the named FK; keep
+            // the nullable column (harmless for tests). New columns are still added.
+            Schema::table('monthly_salaries', function (Blueprint $table) use ($isSqlite) {
+                if (! $isSqlite && Schema::hasColumn('monthly_salaries', 'presence_id')) {
+                    $table->dropForeign('monthly_salaries_presence_id_foreign');
                     $table->dropColumn('presence_id');
                 }
 
@@ -35,11 +37,8 @@ return new class extends Migration
                 $table->decimal('base_salary', 15, 2)->default(0)->after('total_hours');
                 $table->json('allowances')->nullable()->after('base_salary');
                 $table->json('deductions')->nullable()->after('allowances');
-                // We keep amount or rename it? Let's alter amount to be total_salary, or keep amount as total_salary.
-                // Keeping amount is safer for compatibility, but let's add total_salary and deprecate amount or keep them synchronized.
-                // Let's add total_salary and keep amount as well.
                 $table->decimal('total_salary', 15, 2)->default(0)->after('deductions');
-                $table->tinyInteger('status')->default(1)->after('total_salary'); // 1 = draft, 2 = approved, 3 = paid
+                $table->tinyInteger('status')->default(1)->after('total_salary');
                 $table->dateTime('payment_date')->nullable()->after('status');
 
                 // Foreign key constraint if tenants table exists
