@@ -39,21 +39,21 @@ return new class extends Migration
             $seen[$key] = true;
         }
 
-        // Blueprint's dropForeign()/dropUnique() are deferred-executed, so a try/catch
-        // around the call cannot catch errors thrown at commit time. Pre-check instead,
-        // matching the foreignKeyExists()/indexExists() pattern used in sibling migrations.
-        if (Schema::connection($this->connection)->hasColumn('product_prices', 'variant_id')
-            && $this->foreignKeyExists('product_prices', 'product_prices_variant_id_foreign')) {
-            Schema::connection($this->connection)->table('product_prices', function (Blueprint $table) {
-                $table->dropForeign(['variant_id']);
-            });
-        }
+        Schema::connection($this->connection)->table('product_prices', function (Blueprint $table) {
+            if (Schema::connection($this->connection)->hasColumn('product_prices', 'variant_id')) {
+                try {
+                    $table->dropForeign(['variant_id']);
+                } catch (Throwable) {
+                    // FK may not exist.
+                }
+            }
 
-        if ($this->indexExists('product_prices', 'product_prices_scope_unique')) {
-            Schema::connection($this->connection)->table('product_prices', function (Blueprint $table) {
+            try {
                 $table->dropUnique('product_prices_scope_unique');
-            });
-        }
+            } catch (Throwable) {
+                // Index may not exist.
+            }
+        });
 
         if (Schema::connection($this->connection)->hasColumn('product_prices', 'variant_id')) {
             Schema::connection($this->connection)->table('product_prices', function (Blueprint $table) {
@@ -61,14 +61,16 @@ return new class extends Migration
             });
         }
 
-        if (! $this->indexExists('product_prices', 'product_prices_store_product_type_unique')) {
-            Schema::connection($this->connection)->table('product_prices', function (Blueprint $table) {
+        Schema::connection($this->connection)->table('product_prices', function (Blueprint $table) {
+            try {
                 $table->unique(
                     ['store_id', 'product_id', 'customer_type_id'],
                     'product_prices_store_product_type_unique'
                 );
-            });
-        }
+            } catch (Throwable) {
+                // Unique may already exist.
+            }
+        });
     }
 
     public function down(): void
@@ -83,57 +85,5 @@ return new class extends Migration
                 $table->index('variant_id');
             });
         }
-    }
-
-    private function indexExists(string $table, string $index): bool
-    {
-        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
-            return (bool) DB::connection($this->connection)->selectOne(
-                "SELECT 1 FROM sqlite_master WHERE type = 'index' AND tbl_name = ? AND name = ?",
-                [$table, $index]
-            );
-        }
-        return (bool) DB::connection($this->connection)->selectOne(
-            <<<'SQL'
-            SELECT 1
-            FROM information_schema.STATISTICS
-            WHERE TABLE_SCHEMA = DATABASE()
-              AND TABLE_NAME = ?
-              AND INDEX_NAME = ?
-            LIMIT 1
-            SQL,
-            [$table, $index]
-        );
-    }
-
-    private function foreignKeyExists(string $table, string $constraint): bool
-    {
-        if (DB::connection($this->connection)->getDriverName() === 'sqlite') {
-            $column = str_replace([$table . '_', '_foreign'], '', $constraint);
-            try {
-                $foreignKeys = DB::connection($this->connection)->select("PRAGMA foreign_key_list({$table})");
-                foreach ($foreignKeys as $fk) {
-                    $fkArray = (array) $fk;
-                    $fromField = $fkArray['from'] ?? $fkArray['FROM'] ?? null;
-                    if ($fromField === $column) {
-                        return true;
-                    }
-                }
-            } catch (\Throwable) {
-            }
-            return false;
-        }
-        return (bool) DB::connection($this->connection)->selectOne(
-            <<<'SQL'
-            SELECT 1
-            FROM information_schema.TABLE_CONSTRAINTS
-            WHERE CONSTRAINT_SCHEMA = DATABASE()
-              AND TABLE_NAME = ?
-              AND CONSTRAINT_NAME = ?
-              AND CONSTRAINT_TYPE = 'FOREIGN KEY'
-            LIMIT 1
-            SQL,
-            [$table, $constraint]
-        );
     }
 };
