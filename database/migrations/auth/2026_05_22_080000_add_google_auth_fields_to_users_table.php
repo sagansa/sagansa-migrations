@@ -25,11 +25,7 @@ return new class extends Migration
             }
         });
 
-        // Raw 'ALTER TABLE ... MODIFY' is MySQL DDL unsupported by SQLite.
-        // Skip on SQLite — password nullability is a non-critical schema refinement for tests.
-        if (DB::connection($this->connection)->getDriverName() !== 'sqlite') {
-            DB::connection($this->connection)->statement('ALTER TABLE users MODIFY password VARCHAR(255) NULL');
-        }
+        DB::connection($this->connection)->statement('ALTER TABLE users MODIFY password VARCHAR(255) NULL');
     }
 
     public function down(): void
@@ -48,8 +44,6 @@ return new class extends Migration
             }
         });
 
-        if (DB::connection($this->connection)->getDriverName() !== 'sqlite') {
-            DB::connection($this->connection)->statement('ALTER TABLE users MODIFY password VARCHAR(255) NOT NULL');
-        }
+        DB::connection($this->connection)->statement('ALTER TABLE users MODIFY password VARCHAR(255) NOT NULL');
     }
 };
