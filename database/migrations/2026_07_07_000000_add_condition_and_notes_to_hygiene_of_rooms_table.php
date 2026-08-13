@@ -14,7 +14,7 @@ return new class extends Migration
             $table->tinyInteger('condition')
                 ->nullable()
                 ->after('image')
-                ->comment('1=Bersih, 2=Perlu Perhatian, 3=Kotor');
+                ->comment('1=Bersih, 2=Perlu Perhatian, 3=Kotor, 4=Tidak Sesuai');
             $table->text('notes')
                 ->nullable()
                 ->after('condition');
