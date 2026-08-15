@@ -50,6 +50,7 @@ return new class extends Migration
         }
 
         // Skema standar Laravel yang dibaca Filament (morphMany notifiable).
+        // created_at wajib: Filament mengurutkan list notifikasi dengannya.
         if (! $schema->hasTable('notifications')) {
             $schema->create('notifications', function (Blueprint $table) {
                 $table->uuid('id')->primary();
@@ -57,7 +58,19 @@ return new class extends Migration
                 $table->morphs('notifiable');
                 $table->text('data');
                 $table->timestamp('read_at')->nullable();
+                $table->timestamps();
             });
+        } else {
+            if (! $schema->hasColumn('notifications', 'created_at')) {
+                $schema->table('notifications', function (Blueprint $table) {
+                    $table->timestamp('created_at')->nullable()->after('read_at');
+                });
+            }
+            if (! $schema->hasColumn('notifications', 'updated_at')) {
+                $schema->table('notifications', function (Blueprint $table) {
+                    $table->timestamp('updated_at')->nullable()->after('created_at');
+                });
+            }
         }
     }
 
