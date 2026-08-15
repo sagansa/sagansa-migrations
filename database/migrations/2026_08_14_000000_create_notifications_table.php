@@ -6,22 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    // Tabel notifications berada di DB sagansa (koneksi mysql).
+    // Tabel notification center berada di DB sagansa (koneksi mysql).
     protected $connection = 'mysql';
 
     public function up(): void
     {
         $schema = Schema::connection($this->connection);
 
-        // Tabel notifications sebelumnya memakai skema default Laravel
-        // (notifiable_type / notifiable_id) yang tidak terpakai di project ini.
-        // Ganti dengan skema notification center kita (user_id, type, dll).
-        if ($schema->hasTable('notifications') && ! $schema->hasColumn('notifications', 'user_id')) {
-            $schema->drop('notifications');
-        }
-
-        if (! $schema->hasTable('notifications')) {
-            $schema->create('notifications', function (Blueprint $table) {
+        // Notification center mobile memakai tabel sendiri (notification_center)
+        // agar tidak bentrok dengan tabel `notifications` standar Laravel yang
+        // dipakai Filament admin (notifiable_type/notifiable_id). Migrasi
+        // 2026_08_15 menangani DB yang sudah terlanjur memakai skema lama.
+        if (! $schema->hasTable('notification_center')) {
+            $schema->create('notification_center', function (Blueprint $table) {
                 $table->id();
                 // Loose FK ke sagansa_user.users (tanpa constraint enforced,
                 // mengikuti pola device_tokens).
@@ -42,6 +39,6 @@ return new class extends Migration
     public function down(): void
     {
         $schema = Schema::connection($this->connection);
-        $schema->dropIfExists('notifications');
+        $schema->dropIfExists('notification_center');
     }
 };
